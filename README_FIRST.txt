@@ -1,20 +1,8 @@
-TrailGuide v1.1.0
+TrailGuide v1.2.0 — GPX Track Import Test Build
 
-Wichtig: Dieses Paket ist ein komplettes Update der bestehenden TrailGuide-v1-App.
-Es verwendet absichtlich weiterhin:
-- denselben localStorage-Präfix tg1_
-- denselben Firestore-Pfad trailguideUsers
-- denselben Google-Drive-Root TrailGuide
+This build tests the intended workflow:
+1. Import a real `.hikingguide`.
+2. The guide either contains the original GPX/track geometry, or you attach a `.gpx` to the route.
+3. TrailGuide draws the ENTIRE route as a line, auto-fitting the map to the track.
 
-Dadurch bleiben bestehende Daten und Verbindungen erhalten.
-
-Neu in v1.1.0:
-- komplette deutsche Oberfläche (ss statt ß; ä, ö und ü werden normal verwendet)
-- klare Trennung zwischen Wandern und Reisen
-- GPX-Import zeichnet den echten Track als Linie auf der Karte
-- Start- und Endpunkt jeder Route auf der Karte
-- ÖV-/Bergbahn-Links pro Ziel und pro Route
-- zeitabhängige aktuelle Informationen mit Prüfdatum
-- intelligenter Import: neu / aktualisiert / unverändert
-- Update-Erkennung über stabile IDs oder geografischen Fallback
-- vorhandene GPX-/Drive-Verknüpfungen bleiben bei Guide-Updates erhalten
+This package is intentionally focused on the hiking-guide + GPX workflow. Upload the unzipped files to the root of the web app.
