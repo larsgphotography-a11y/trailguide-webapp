@@ -1,9 +1,1 @@
-{
-  "name": "TrailGuide",
-  "short_name": "TrailGuide",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#f3f1ec",
-  "theme_color": "#183b30",
-  "icons": []
-}
+{"name":"TrailGuide — Reisen & Wandern","short_name":"TrailGuide","lang":"de","description":"Reiseplanung und Wanderbibliothek mit GPX, Cloud-Sync und Google-Drive-Dokumenten.","start_url":"./","scope":"./","display":"standalone","background_color":"#f3f1ec","theme_color":"#19382c","icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"}]}
