@@ -1,43 +1,36 @@
-TrailGuide v1.5.0 — Link Sharing
-=================================
+TrailGuide v1.5.1 — Share Link Fix + Map Visibility Toggle
+==========================================================
 
-This version replaces the customer ZIP workflow with direct customer links.
+Fixes
+-----
+1. Share-link Firestore error fixed.
+   Firestore does not support nested arrays, while GPX geometry is naturally stored as:
+   [[lat,lng],[lat,lng],...]
 
-How it works
-------------
-1. Sign into TrailGuide Cloud with your Google account.
-2. Open "Mehr" -> "Freigabelink erstellen".
-3. Select one, several, or all prepared hiking destinations.
-4. Optionally select trips.
-5. Create the link.
-6. Send only that URL to the customer.
+   v1.5.1 stores the shared TrailGuide snapshot as a JSON string (`dataJson`)
+   in Firestore. The customer link converts it back to normal TrailGuide data
+   when opened.
 
-The customer:
-- installs nothing
-- imports nothing
-- needs no TrailGuide account
-- opens the normal TrailGuide web app
-- immediately sees the prepared destinations, hikes and GPX geometry
-- can use the normal app UI and local functionality
+2. New per-route map visibility toggle.
+   On each route detail page you now have:
+   "Route auf Karten anzeigen" ON/OFF
 
-The shared link is a bearer link. Anyone who receives the URL can open that shared snapshot.
+   OFF hides that route / GPX from:
+   - the route map
+   - the destination map
+   - the global TrailGuide map
 
-IMPORTANT — Firestore rules
----------------------------
-This feature needs the included firestore.rules to be deployed to the Firebase project.
-The relevant collection is:
+   The setting is stored with the route and is included in shared snapshots.
 
-trailguideShares/{shareId}
+Sharing workflow
+----------------
+Mehr -> Freigabelink erstellen -> select destinations/trips -> create link.
 
-Rules allow:
-- public read for anyone who has the random share ID
-- create/update/delete only by the authenticated owner
+The customer only receives a URL and does not install or import anything.
 
-GitHub Pages
-------------
-Upload all files from this ZIP to the root of the existing TrailGuide GitHub Pages repository.
-Keep the same public TrailGuide URL. Shared links look like:
+Firestore
+---------
+The same `trailguideShares/{shareId}` rules from v1.5 are used.
+Shared snapshots are stored in the `dataJson` string field.
 
-https://<your-site>/trailguide-webapp/?share=<random-id>
-
-Version: 1.5.0
+Version 1.5.1

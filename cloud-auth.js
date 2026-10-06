@@ -40,13 +40,14 @@ function listen(){if(unsub){unsub();unsub=null}if(SHARE_ID||!user)return;unsub=o
 async function publishShare({title,snapshot}){
   if(!user)throw new Error("Bitte zuerst bei TrailGuide Cloud anmelden.");
   const id=crypto.randomUUID().replace(/-/g,"");
+  const snapshotJson=JSON.stringify(snapshot);
   await setDoc(shareRef(id),{
     ownerUid:user.uid,
     ownerEmail:user.email||"",
     title:title||"TrailGuide Freigabe",
     publishedAt:new Date().toISOString(),
     appVersion:C.APP_VERSION,
-    data:snapshot
+    dataJson:snapshotJson
   });
   const u=new URL(location.href);
   u.search="";
@@ -58,7 +59,14 @@ async function loadShare(id){
   const s=await getDoc(shareRef(id));
   if(!s.exists())throw new Error("Dieser TrailGuide-Freigabelink existiert nicht oder wurde entfernt.");
   const x=s.data();
-  window.TrailGuide.replaceFromShare(x.data||{}, {title:x.title||"Freigegebener TrailGuide",publishedAt:x.publishedAt||""});
+  let payload={};
+  try{
+    payload=x.dataJson?JSON.parse(x.dataJson):(x.data||{});
+  }catch(e){
+    console.error("Freigabedaten konnten nicht gelesen werden",e);
+    throw new Error("Die Daten dieses Freigabelinks sind beschädigt.");
+  }
+  window.TrailGuide.replaceFromShare(payload, {title:x.title||"Freigegebener TrailGuide",publishedAt:x.publishedAt||""});
   return x;
 }
 

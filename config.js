@@ -1,7 +1,7 @@
 window.TRAILGUIDE_CONFIG = Object.freeze({
   APP_NAME: "TrailGuide",
-  APP_VERSION: "1.5.0",
-  APP_BUILD: "2026-10-06-link-sharing",
+  APP_VERSION: "1.5.1",
+  APP_BUILD: "2026-10-06-link-sharing-fix-map-toggle",
   DRIVE_ROOT_NAME: "TrailGuide",
   LOCAL_PREFIX: "tg1_",
   FIRESTORE_ROOT: "trailguideUsers",

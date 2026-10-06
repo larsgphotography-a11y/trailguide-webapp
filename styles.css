@@ -14,3 +14,14 @@
 .share-checklist{display:grid;gap:7px;margin:10px 0}
 .share-check{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
 .share-check small{display:block;color:var(--muted);margin-top:2px}
+
+.route-visibility-row{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}
+.route-visibility-row b,.route-visibility-row small{display:block}
+.route-visibility-row small{color:var(--muted);margin-top:2px}
+.switch{position:relative;display:inline-block;width:50px;height:29px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#b9bdb9;border-radius:999px;transition:.2s}
+.slider:before{content:"";position:absolute;width:23px;height:23px;left:3px;top:3px;background:white;border-radius:50%;box-shadow:0 1px 4px #0004;transition:.2s}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider:before{transform:translateX(21px)}
+.route-hidden-badge{display:inline-block;background:#eee8dd;color:#6f654f;border-radius:999px;padding:4px 7px;font-size:.68rem;margin-top:7px}
