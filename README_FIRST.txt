@@ -1,36 +1,43 @@
-TrailGuide v1.4.0 — Customer Publishing
-=========================================
+TrailGuide v1.5.0 — Link Sharing
+=================================
 
-This build keeps the merged v1.1 + v1.2 feature set and adds customer publishing.
+This version replaces the customer ZIP workflow with direct customer links.
 
-New: Kundenversion veröffentlichen
-----------------------------------
-In Mehr -> Kundenversion veröffentlichen you can:
-- enter a customer name
-- select one, several, or all hiking destinations
-- select one, several, or all trips
-- create a complete customer-specific TrailGuide ZIP
+How it works
+------------
+1. Sign into TrailGuide Cloud with your Google account.
+2. Open "Mehr" -> "Freigabelink erstellen".
+3. Select one, several, or all prepared hiking destinations.
+4. Optionally select trips.
+5. Create the link.
+6. Send only that URL to the customer.
 
-The generated customer ZIP contains:
-- the complete TrailGuide web app
-- selected destinations and hikes
-- all stored GPX geometry
-- selected trips and destination links
-- maps, route details, search, trip planning, import/export, etc.
+The customer:
+- installs nothing
+- imports nothing
+- needs no TrailGuide account
+- opens the normal TrailGuide web app
+- immediately sees the prepared destinations, hikes and GPX geometry
+- can use the normal app UI and local functionality
 
-The customer does NOT need to import anything. The data is preloaded on first launch.
+The shared link is a bearer link. Anyone who receives the URL can open that shared snapshot.
 
-Recommended publishing
------------------------
-Upload the contents of the generated customer ZIP into:
-customers/<customer-slug>/
+IMPORTANT — Firestore rules
+---------------------------
+This feature needs the included firestore.rules to be deployed to the Firebase project.
+The relevant collection is:
 
-Then give the customer this URL:
-https://<your-github-pages-domain>/customers/<customer-slug>/
+trailguideShares/{shareId}
 
-Isolation
----------
-Each customer build uses a separate browser storage prefix, so it does not mix with your own TrailGuide data.
-If the customer uses Cloud or Google Drive, they authenticate with their own Google account.
+Rules allow:
+- public read for anyone who has the random share ID
+- create/update/delete only by the authenticated owner
 
-Version: 1.4.0
+GitHub Pages
+------------
+Upload all files from this ZIP to the root of the existing TrailGuide GitHub Pages repository.
+Keep the same public TrailGuide URL. Shared links look like:
+
+https://<your-site>/trailguide-webapp/?share=<random-id>
+
+Version: 1.5.0

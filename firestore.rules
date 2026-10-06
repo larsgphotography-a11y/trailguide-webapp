@@ -1,26 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Existing Travel & Photography Guide private library
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
 
-    // Existing Travel & Photography Guide read-only sharing
-    match /sharedCollections/{shareId} {
-      allow get: if resource.data.active == true || (request.auth != null && request.auth.uid == resource.data.ownerUid);
-      allow list: if request.auth != null && request.auth.uid == resource.data.ownerUid;
-      allow create: if request.auth != null && request.resource.data.ownerUid == request.auth.uid;
-      allow update, delete: if request.auth != null && resource.data.ownerUid == request.auth.uid;
-      match /content/{contentId} {
-        allow get, list: if get(/databases/$(database)/documents/sharedCollections/$(shareId)).data.active == true || (request.auth != null && get(/databases/$(database)/documents/sharedCollections/$(shareId)).data.ownerUid == request.auth.uid);
-        allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/sharedCollections/$(shareId)).data.ownerUid == request.auth.uid;
-      }
-    }
-
-    // TrailGuide — kept completely separate from the photography app
+    // Existing private user library
     match /trailguideUsers/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Bearer-link shares: anyone with the unguessable share URL can read.
+    // Only the authenticated owner can create/update/delete a share.
+    match /trailguideShares/{shareId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.ownerUid == request.auth.uid;
     }
   }
 }

@@ -7,3 +7,10 @@
 .customer-check{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
 .customer-check small{display:block;color:var(--muted);margin-top:2px}
 .customer-mode-badge{font-size:.66rem;background:#d7e8dd;color:#234b38;padding:4px 7px;border-radius:999px;margin-left:6px}
+
+.share-banner{margin:10px 14px 0;padding:10px 12px;border-radius:14px;background:#e7f3eb;border:1px solid #bfd6c8;color:#254f3c;display:flex;gap:9px;align-items:center}
+.share-banner b,.share-banner small{display:block}.share-banner small{color:#5c7165;margin-top:2px}
+.share-link-box{word-break:break-all;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:.78rem;margin-top:8px}
+.share-checklist{display:grid;gap:7px;margin:10px 0}
+.share-check{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+.share-check small{display:block;color:var(--muted);margin-top:2px}
