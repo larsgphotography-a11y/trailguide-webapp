@@ -1,6 +1,6 @@
 window.TRAILGUIDE_CONFIG = Object.freeze({
   APP_NAME: "TrailGuide",
-  APP_VERSION: "1.0.0",
+  APP_VERSION: "1.1.0",
   APP_BUILD: "2026-10-06",
   DRIVE_ROOT_NAME: "TrailGuide",
   LOCAL_PREFIX: "tg1_",
