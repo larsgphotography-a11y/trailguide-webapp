@@ -1,8 +1,28 @@
-TrailGuide v1.2.0 — GPX Track Import Test Build
+TrailGuide v1.3.0 — merged v1.1 + v1.2
+========================================
 
-This build tests the intended workflow:
-1. Import a real `.hikingguide`.
-2. The guide either contains the original GPX/track geometry, or you attach a `.gpx` to the route.
-3. TrailGuide draws the ENTIRE route as a line, auto-fitting the map to the track.
+This build deliberately uses v1.1 as the feature/UI base and merges the useful GPX changes from v1.2.
 
-This package is intentionally focused on the hiking-guide + GPX workflow. Upload the unzipped files to the root of the web app.
+Retained from v1.1:
+- Full 5-tab UI (Start / Wandern / Reisen / Karte / Mehr)
+- Country → Region → Destination organization
+- Trips and destination linking
+- Manual route creation
+- Travel documents
+- Firebase TrailGuide Cloud
+- Google Drive integration and Drive backups
+- Import/export and ZIP import
+- Full richer UI
+
+Merged from v1.2:
+- Full GPX track display on route/destination/global maps
+- Embedded GPX support in .hikingguide (`gpx_text`, `gpx_geometry`, `gpx.geometry`, `track`)
+- Local GPX attachment without requiring Google Drive
+- Existing GPX preserved when a guide is re-imported
+
+Fixed:
+- Hamburger menu now opens a real navigation drawer.
+- GPX parsing uses namespace-safe GPX track-point handling.
+- Service worker cache version bumped to v1.3.0.
+
+Upload all unzipped files to the GitHub Pages repository root.

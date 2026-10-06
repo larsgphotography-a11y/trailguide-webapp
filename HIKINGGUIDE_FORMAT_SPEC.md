@@ -1,16 +1,13 @@
 # TrailGuide HikingGuide Format v3
 
-A `.hikingguide` is UTF-8 JSON with `format: "hikingguide"`.
+`format: "hikingguide"`.
 
-## GPX route support
-Each route may contain one of:
-- `gpx_text`: the complete original GPX XML as a JSON string
-- `gpx_geometry`: `[[lat,lng], ...]`
-- `gpx.geometry`: same coordinate array
-- `track`: same coordinate array
+Routes may contain:
+- `gpx_geometry: [[lat,lng], ...]`
+- `gpx.geometry`
+- `track`
+- `gpx_text` containing complete GPX XML
 
-TrailGuide parses `<trkpt>` first and falls back to `<rtept>`. The resulting full geometry is stored locally and drawn on route, destination and global maps.
-
-A metadata-only HikingGuide is also supported. Open its route and tap **GPX-Datei hinzufügen / ersetzen** to attach the original GPX manually.
-
-Re-import with the same stable guide/route IDs preserves an already stored GPX unless the new guide explicitly supplies replacement GPX.
+TrailGuide v1.3 parses embedded GPX and displays the entire track on route, destination and global maps.
+Manual route GPX import is also supported and works locally even when Google Drive is not connected.
+Re-importing the same guide preserves existing GPX geometry unless replacement geometry is supplied.
