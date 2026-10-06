@@ -1,0 +1,31 @@
+{
+  "format": "hikingguide",
+  "format_version": 3,
+  "id": "ch-gr-lenzerheide-test",
+  "country": "Schweiz",
+  "country_code": "CH",
+  "region": "Graubünden",
+  "destination": "Lenzerheide",
+  "summary": "GPX workflow test placeholder. The next step is to replace this with a real Lenzerheide hiking guide.",
+  "center": {
+    "lat": 46.72803,
+    "lng": 9.55844
+  },
+  "routes": [
+    {
+      "id": "placeholder",
+      "name": "Lenzerheide GPX test placeholder",
+      "distance_km": 0,
+      "duration_min": 0,
+      "ascent_m": 0,
+      "difficulty": "Test",
+      "activity": "Wandern",
+      "start": {
+        "name": "Lenzerheide",
+        "lat": 46.72803,
+        "lng": 9.55844
+      },
+      "gpx_geometry": []
+    }
+  ]
+}

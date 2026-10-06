@@ -1,38 +1,16 @@
-# TrailGuide HikingGuide Format v2
+# TrailGuide HikingGuide Format v3
 
-Ein `.hikingguide` ist JSON mit `format: "hikingguide"`.
+A `.hikingguide` is UTF-8 JSON with `format: "hikingguide"`.
 
-## Identität und Updates
-- `id` MUSS über spätere Aktualisierungen stabil bleiben.
-- Falls `id` fehlt, erkennt TrailGuide ein bestehendes Ziel über Land + Region + Zielname.
-- `updated_at` beschreibt die inhaltliche Aktualisierung.
-- `source_checked_at` beschreibt, wann externe Informationen zuletzt geprüft wurden.
-- `revision` kann für grössere Guide-Revisionen erhöht werden.
-- Beim Import eines bereits bekannten Guides werden Inhalte aktualisiert; lokale Drive-Dokumente, GPX-Dateireferenzen und vorhandene GPX-Geometrie bleiben erhalten, sofern das Update sie nicht ausdrücklich ersetzt.
+## GPX route support
+Each route may contain one of:
+- `gpx_text`: the complete original GPX XML as a JSON string
+- `gpx_geometry`: `[[lat,lng], ...]`
+- `gpx.geometry`: same coordinate array
+- `track`: same coordinate array
 
-## Route
-Jede Route sollte eine stabile `id` besitzen und kann enthalten:
-- `name`, `distance_km`, `duration_min`, `ascent_m`, `descent_m`
-- `difficulty`, `activity`, `description`, `highlights[]`
-- `start: {name,lat,lng}`
-- `end: {name,lat,lng}`
-- `gpx_geometry: [[lat,lng], ...]` (wird normalerweise beim GPX-Import erzeugt)
-- `gpx_drive` (Drive-Metadaten der Originaldatei)
-- `source_url`, `source_checked_at`, `updated_at`
-- `access_links[]`
+TrailGuide parses `<trkpt>` first and falls back to `<rtept>`. The resulting full geometry is stored locally and drawn on route, destination and global maps.
 
-## Anreise / Zugang
-`access_links[]` kann auf Ziel- oder Routenebene stehen:
-```json
-{
-  "type": "public_transport",
-  "provider": "SBB",
-  "label": "Fahrplan zum Startpunkt",
-  "url": "https://...",
-  "note": "PostAuto ab Chur"
-}
-```
-Für private Bergbahnen kann `type: "cable_car"` und die offizielle Betreiber-Webseite verwendet werden.
+A metadata-only HikingGuide is also supported. Open its route and tap **GPX-Datei hinzufügen / ersetzen** to attach the original GPX manually.
 
-## Aktuelle Informationen
-`current_info[]` ist für zeitabhängige Angaben wie Betriebszeiten, saisonale Zufahrten oder Sperrungen gedacht. Jeder Eintrag sollte `checked_at` und möglichst eine `url` zur Quelle enthalten.
+Re-import with the same stable guide/route IDs preserves an already stored GPX unless the new guide explicitly supplies replacement GPX.
