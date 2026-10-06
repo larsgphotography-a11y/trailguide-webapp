@@ -1,8 +1,16 @@
 (()=>{
-const C=window.TRAILGUIDE_CONFIG,P=C.LOCAL_PREFIX;
+const C=window.TRAILGUIDE_CONFIG;
+const CUSTOMER=window.TRAILGUIDE_CUSTOMER_DATA||null;
+const P=CUSTOMER?.storage_prefix||C.LOCAL_PREFIX;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 function jget(k,f){try{const r=localStorage.getItem(P+k);return r?JSON.parse(r):f}catch(e){return f}}
 function jset(k,v){localStorage.setItem(P+k,JSON.stringify(v));if(!window.__tgApplyingCloud)window.dispatchEvent(new CustomEvent("trailguide:localchange",{detail:{key:P+k}}))}
+if(CUSTOMER && !localStorage.getItem(P+"customer_seeded")){
+  localStorage.setItem(P+"destinations",JSON.stringify(CUSTOMER.destinations||[]));
+  localStorage.setItem(P+"trips",JSON.stringify(CUSTOMER.trips||[]));
+  localStorage.setItem(P+"state",JSON.stringify({customer_name:CUSTOMER.customer_name||"",published_at:CUSTOMER.published_at||""}));
+  localStorage.setItem(P+"customer_seeded","1");
+}
 let destinations=jget("destinations",[]),trips=jget("trips",[]),state=jget("state",{});
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function norm(v=""){return String(v).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
@@ -24,7 +32,7 @@ function closeDrawer(){$("#drawer").classList.remove("open");$("#drawer").setAtt
 $("#menuBtn").onclick=openDrawer;$("#drawerClose").onclick=closeDrawer;$("#drawerScrim").onclick=closeDrawer;
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer()});
 
-function renderHome(){const hikes=destinations.reduce((n,d)=>n+(d.routes?.length||0),0);$("#homeDestinationCount").textContent=`${destinations.length} Ziel${destinations.length===1?"":"e"}`;$("#homeHikeCount").textContent=`${hikes} Wanderung${hikes===1?"":"en"}`;$("#homeTripCount").textContent=`${trips.length} Reise${trips.length===1?"":"n"}`;const d=destinations[0];$("#featuredDestination").innerHTML=d?destinationCard(d):'<p class="muted">Importiere deinen ersten Wander-Guide.</p>';$("#aboutVersion").textContent=`${C.APP_NAME} v${C.APP_VERSION}`}
+function renderHome(){const hikes=destinations.reduce((n,d)=>n+(d.routes?.length||0),0);$("#homeDestinationCount").textContent=`${destinations.length} Ziel${destinations.length===1?"":"e"}`;$("#homeHikeCount").textContent=`${hikes} Wanderung${hikes===1?"":"en"}`;$("#homeTripCount").textContent=`${trips.length} Reise${trips.length===1?"":"n"}`;const d=destinations[0];$("#featuredDestination").innerHTML=d?destinationCard(d):'<p class="muted">Importiere deinen ersten Wander-Guide.</p>';$("#aboutVersion").textContent=`${C.APP_NAME} v${C.APP_VERSION}${CUSTOMER?` · Kundenversion: ${CUSTOMER.customer_name||"Kunde"}`:""}`}
 function destinationCard(d){const tracks=(d.routes||[]).filter(r=>validGeom(r.gpx_geometry)).length;return `<article class="destination-card"><div class="eyebrow">${esc(d.country||"")} · ${esc(d.region||"")}</div><h3>${esc(d.destination||"Ziel")}</h3><div class="card-meta">${d.routes?.length||0} Wanderungen · ${tracks} vollständige GPX-Tracks</div><p>${esc(d.summary||"")}</p><div class="btnrow"><button class="primary" onclick="TrailGuide.openDestination('${esc(d.id)}')">Ziel öffnen</button></div></article>`}
 function renderDestinations(){const q=($("#destinationSearch")?.value||"").toLowerCase();const filtered=destinations.filter(d=>JSON.stringify(d).toLowerCase().includes(q));const countries={};filtered.forEach(d=>{const c=d.country||"Unbekannt",r=d.region||"Andere";countries[c]??={};countries[c][r]??=[];countries[c][r].push(d)});$("#destinationLibrary").innerHTML=Object.entries(countries).map(([c,regs])=>`<details class="geo-group" open><summary>${esc(c)}</summary>${Object.entries(regs).map(([r,ds])=>`<details class="geo-group" open><summary>${esc(r)}</summary>${ds.map(destinationCard).join("")}</details>`).join("")}</details>`).join("")||'<p class="muted">Keine Ziele gefunden.</p>'}
 $("#destinationSearch").oninput=renderDestinations;
@@ -70,6 +78,122 @@ $("#gpxInput").onchange=async e=>{const f=e.target.files[0];e.target.value="";if
 
 let pendingDoc={};function uploadDocument(type,id){pendingDoc={type,id};$("#documentInput").click()}
 $("#documentInput").onchange=async e=>{const files=[...e.target.files];e.target.value="";if(!files.length)return;try{for(const f of files){if(!window.TrailGuideDrive?.uploadDocument)throw new Error("Google Drive ist nicht verfügbar.");const saved=await window.TrailGuideDrive.uploadDocument({type:pendingDoc.type,id:pendingDoc.id,file:f,destinations,trips});if(pendingDoc.type==="trip"){const t=trips.find(x=>x.id===pendingDoc.id);t.documents??=[];t.documents.push(saved)}else{const d=destinations.find(x=>x.id===pendingDoc.id);d.documents??=[];d.documents.push(saved)}}save();toast("Dokument auf Google Drive gespeichert");pendingDoc.type==="trip"?openTrip(pendingDoc.id):openDestination(pendingDoc.id)}catch(err){toast(err.message);console.error(err)}};
+
+
+function slugify(v="customer"){return norm(v)||"customer"}
+function selectAllByClass(cls,checked=true){$$("."+cls).forEach(x=>x.checked=checked)}
+async function fetchAsset(path,binary=false){
+  const r=await fetch(path,{cache:"no-store"});
+  if(!r.ok)throw new Error(`Datei konnte nicht geladen werden: ${path}`);
+  return binary?await r.arrayBuffer():await r.text();
+}
+async function publishCustomer(){
+  if(!window.JSZip){toast("JSZip ist nicht verfügbar.");return}
+  const customerName=$("#pubCustomerName").value.trim()||"Kunde";
+  const slug=slugify($("#pubCustomerSlug").value.trim()||customerName);
+  const selectedDestIds=$$(".pubDest:checked").map(x=>x.value);
+  const selectedTripIds=$$(".pubTrip:checked").map(x=>x.value);
+
+  let selectedTrips=trips.filter(t=>selectedTripIds.includes(t.id));
+  const linkedIds=new Set(selectedTrips.flatMap(t=>t.destination_ids||[]));
+  const allDestIds=new Set([...selectedDestIds,...linkedIds]);
+  let selectedDestinations=destinations.filter(d=>allDestIds.has(d.id));
+
+  // Keep only links to destinations included in the published customer package.
+  selectedTrips=selectedTrips.map(t=>({...t,destination_ids:(t.destination_ids||[]).filter(id=>allDestIds.has(id))}));
+
+  if(!selectedDestinations.length && !selectedTrips.length){
+    toast("Wähle mindestens ein Ziel oder eine Reise aus.");return;
+  }
+
+  const customerData={
+    format:"trailguide_customer",
+    format_version:1,
+    customer_id:slug,
+    customer_name:customerName,
+    published_at:new Date().toISOString(),
+    source_app_version:C.APP_VERSION,
+    storage_prefix:`tg_customer_${slug}_`,
+    destinations:selectedDestinations,
+    trips:selectedTrips
+  };
+
+  const zip=new JSZip();
+  const textAssets=["styles.css","config.js","app.js","drive.js","cloud-auth.js","manifest.webmanifest","privacy.html","HIKINGGUIDE_FORMAT_SPEC.md"];
+  for(const p of textAssets)zip.file(p,await fetchAsset(p,false));
+
+  let html=await fetchAsset("index.html",false);
+  // Ensure the generated customer build loads its own data file exactly once.
+  if(!html.includes('customer-data.js'))html=html.replace('<script src="config.js"></script>','<script src="customer-data.js"></script>\\n<script src="config.js"></script>');
+  html=html.replace("<title>TrailGuide</title>",`<title>TrailGuide · ${esc(customerName)}</title>`);
+  zip.file("index.html",html);
+
+  zip.file("customer-data.js",`window.TRAILGUIDE_CUSTOMER_DATA=${JSON.stringify(customerData)};\\n`);
+
+  const sw=`const CACHE="trailguide-customer-${slug}-${Date.now()}";
+const ASSETS=["./","./index.html","./styles.css","./customer-data.js","./config.js","./app.js","./drive.js","./manifest.webmanifest","./privacy.html"];
+self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
+self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
+self.addEventListener("fetch",e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request))));`;
+  zip.file("sw.js",sw);
+
+  for(const p of ["icons/icon-192.png","icons/icon-512.png"])zip.file(p,await fetchAsset(p,true));
+
+  const instructions=`TrailGuide customer build
+========================
+
+Customer: ${customerName}
+Customer slug: ${slug}
+Published: ${customerData.published_at}
+
+This ZIP is a complete TrailGuide web app with the selected destinations, hikes, GPX geometry and trips preloaded.
+
+Recommended publishing:
+1. Create a folder in your GitHub Pages repository, for example:
+   customers/${slug}/
+2. Upload the CONTENTS of this ZIP into that folder.
+3. The customer URL will then be:
+   https://<your-github-pages-domain>/customers/${slug}/
+
+Important:
+- The customer gets a separate local TrailGuide library using storage prefix:
+  ${customerData.storage_prefix}
+- Their local edits do not change your own TrailGuide library.
+- They can use the full app UI and local features.
+- Cloud/Google Drive, if used, authenticate as the customer's own Google account.
+`;
+  zip.file("PUBLISH_INSTRUCTIONS.txt",instructions);
+
+  const blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}});
+  download(blob,`TrailGuide_Customer_${slug}.zip`);
+  closeDialog();
+  toast(`Kundenversion für ${customerName} erstellt`);
+}
+function openCustomerPublisher(){
+  const destList=destinations.map(d=>`<label class="customer-check"><input class="pubDest" type="checkbox" value="${esc(d.id)}" checked><span><b>${esc(d.country)} · ${esc(d.region)} · ${esc(d.destination)}</b><small>${d.routes?.length||0} Wanderungen · ${(d.routes||[]).filter(r=>validGeom(r.gpx_geometry)).length} GPX-Tracks</small></span></label>`).join("")||'<p class="muted">Keine Wanderziele vorhanden.</p>';
+  const tripList=trips.map(t=>`<label class="customer-check"><input class="pubTrip" type="checkbox" value="${esc(t.id)}" checked><span><b>${esc(t.name)}</b><small>${esc(t.start_date||"")} ${t.end_date?`→ ${esc(t.end_date)}`:""}</small></span></label>`).join("")||'<p class="muted">Keine Reisen vorhanden.</p>';
+
+  showDialog("Kundenversion veröffentlichen",`
+    <div class="customer-publish-note"><b>Vollständige Kunden-App</b><br>Die ZIP enthält die komplette TrailGuide-Web-App plus deine ausgewählten, bereits vorbereiteten Inhalte. Der Kunde muss nichts importieren.</div>
+    <div class="form-grid">
+      <label class="field full"><span>Kundenname</span><input id="pubCustomerName" placeholder="z. B. Familie Müller"></label>
+      <label class="field full"><span>URL-/Ordnername</span><input id="pubCustomerSlug" placeholder="wird automatisch erzeugt"></label>
+    </div>
+    <div class="section-head" style="margin-top:16px"><h2>Wanderziele</h2><div class="btnrow"><button class="secondary" id="pubDestAll">Alle</button><button class="secondary" id="pubDestNone">Keine</button></div></div>
+    <div class="customer-checklist">${destList}</div>
+    <div class="section-head" style="margin-top:16px"><h2>Reisen</h2><div class="btnrow"><button class="secondary" id="pubTripAll">Alle</button><button class="secondary" id="pubTripNone">Keine</button></div></div>
+    <div class="customer-checklist">${tripList}</div>
+    <div class="btnrow"><button class="primary" id="createCustomerBuild">Kunden-App als ZIP erstellen</button></div>
+  `);
+  $("#pubDestAll").onclick=()=>selectAllByClass("pubDest",true);
+  $("#pubDestNone").onclick=()=>selectAllByClass("pubDest",false);
+  $("#pubTripAll").onclick=()=>selectAllByClass("pubTrip",true);
+  $("#pubTripNone").onclick=()=>selectAllByClass("pubTrip",false);
+  $("#pubCustomerName").oninput=e=>{if(!$("#pubCustomerSlug").dataset.manual)$("#pubCustomerSlug").value=slugify(e.target.value)};
+  $("#pubCustomerSlug").oninput=e=>e.target.dataset.manual="1";
+  $("#createCustomerBuild").onclick=()=>publishCustomer().catch(e=>{console.error(e);toast(e.message||"Kundenversion konnte nicht erstellt werden")});
+}
+$("#publishCustomerButton").onclick=openCustomerPublisher;
 
 function replaceFromCloud(data){window.__tgApplyingCloud=true;try{if(data.destinations)destinations=data.destinations;if(data.trips)trips=data.trips;if(data.state)state=data.state;jset("destinations",destinations);jset("trips",trips);jset("state",state);renderAll()}finally{window.__tgApplyingCloud=false}}
 function getCloudData(){return {schema:3,destinations,trips,state}}

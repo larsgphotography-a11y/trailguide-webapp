@@ -55,6 +55,7 @@
  <div class="section more-list">
   <button class="more-link" data-action="import"><span>📥</span><div><b>Inhalte importieren</b><small>.hikingguide · .travelplan · .gpx · .zip</small></div></button>
   <button class="more-link" data-action="export"><span>📤</span><div><b>Bibliothek exportieren</b><small>Komplettes TrailGuide-Backup herunterladen</small></div></button>
+  <button class="more-link" id="publishCustomerButton"><span>👤</span><div><b>Kundenversion veröffentlichen</b><small>Vollständige TrailGuide-Web-App mit ausgewählten Inhalten als ZIP erstellen</small></div></button>
   <div class="more-sep">TrailGuide Cloud</div>
   <div id="cloudAuthStatus" class="status-card"><b>Cloud-Konto</b><span>Anmeldung wird geprüft…</span></div>
   <button class="more-link" id="cloudAuthButton"><span>G</span><div><b id="cloudAuthButtonTitle">Mit Google anmelden</b><small id="cloudAuthButtonText">Dieses Gerät mit TrailGuide Cloud verbinden</small></div></button>
@@ -101,6 +102,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="customer-data.js"></script>
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script src="drive.js"></script>
