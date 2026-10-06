@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#19382c">
+<title>TrailGuide</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app" class="app">
+<header class="topbar">
+  <div class="brand"><div class="brandmark">🥾</div><div><strong>TRAILGUIDE</strong><small>TRAVEL · HIKING · ROUTES</small></div></div>
+  <button class="icon-btn" id="menuBtn">☰</button>
+</header>
+<main>
+<section class="page active" data-page="home">
+  <div class="page-head"><div class="eyebrow">Dashboard</div><h1>Home</h1></div>
+  <div class="hero-card"><div><div class="eyebrow light">Travel smarter outdoors</div><h2>Trips, destinations and hikes in one place.</h2><p>Plan the journey, keep route information and GPX together, and hand navigation off to the hiking app you prefer.</p></div><span>⛰️</span></div>
+  <div class="section"><div class="section-head"><h2>Libraries</h2></div><div class="home-grid">
+    <button class="library-card" data-action="destinations"><span>🥾</span><div><b>Hiking</b><strong id="homeDestinationCount">0 destinations</strong><small id="homeHikeCount">0 hikes</small></div><i>›</i></button>
+    <button class="library-card" data-action="trips"><span>🧭</span><div><b>Trips</b><strong id="homeTripCount">0 trips</strong><small>Travel plans & documents</small></div><i>›</i></button>
+  </div></div>
+  <div class="section"><div class="section-head"><h2>Quick actions</h2></div><div class="action-grid">
+    <button data-action="import"><span>＋</span><b>Import</b><small>Guide, trip, GPX</small></button>
+    <button data-action="map"><span>🗺️</span><b>Map</b><small>Destinations + hikes</small></button>
+    <button data-action="more"><span>☁</span><b>Sync</b><small>Cloud + Drive</small></button>
+  </div></div>
+  <div class="section"><div class="section-head"><h2>Featured</h2></div><div id="featuredDestination"></div></div>
+</section>
+
+<section class="page" data-page="destinations">
+ <div class="page-head"><div class="eyebrow">Hiking library</div><h1>Browse by geography</h1><div class="searchbox"><span>⌕</span><input id="destinationSearch" placeholder="Search country, region, destination or hike…"></div></div>
+ <div class="section" id="destinationLibrary"></div>
+</section>
+<section class="page" data-page="destination"><div id="destinationShell"></div></section>
+<section class="page" data-page="route"><div id="routeShell"></div></section>
+
+<section class="page" data-page="trips">
+ <div class="page-head"><div class="eyebrow">Travel planner</div><h1>Trips</h1><p class="muted">Travel plans can link to one or more hiking destinations.</p></div>
+ <div class="section"><button class="primary" id="newTripBtn">＋ New trip</button><div id="tripLibrary"></div></div>
+</section>
+<section class="page" data-page="trip"><div id="tripShell"></div></section>
+
+<section class="page" data-page="map">
+ <div class="page-head"><div class="eyebrow">Explore</div><h1>Hiking map</h1><p class="muted">Destination pins and route start points.</p></div>
+ <div class="section"><div id="globalMap" class="mapbox"></div></div>
+</section>
+
+<section class="page" data-page="more">
+ <div class="page-head"><div class="eyebrow">Settings & data</div><h1>More</h1></div>
+ <div class="section more-list">
+  <button class="more-link" data-action="import"><span>📥</span><div><b>Import content</b><small>.hikingguide · .travelplan · .gpx · .zip</small></div></button>
+  <button class="more-link" data-action="export"><span>📤</span><div><b>Export library</b><small>Download a complete TrailGuide backup</small></div></button>
+  <div class="more-sep">TrailGuide Cloud</div>
+  <div id="cloudAuthStatus" class="status-card"><b>Cloud account</b><span>Checking sign-in…</span></div>
+  <button class="more-link" id="cloudAuthButton"><span>G</span><div><b id="cloudAuthButtonTitle">Sign in with Google</b><small id="cloudAuthButtonText">Connect this device to TrailGuide Cloud</small></div></button>
+  <div id="cloudSyncStatus" class="status-card"><b>Cloud sync</b><span>Not connected.</span></div>
+  <button class="more-link" id="cloudSyncButton"><span>↻</span><div><b>Sync now</b><small>Trips, destinations, routes and local settings</small></div></button>
+  <div class="more-sep">Google Drive</div>
+  <div id="driveStatus" class="status-card"><b>Google Drive</b><span>Not connected.</span></div>
+  <button class="more-link" id="driveConnectButton"><span>☁</span><div><b id="driveConnectTitle">Connect Google Drive</b><small>Documents and GPX files live in TrailGuide on Drive</small></div></button>
+  <button class="more-link" id="driveBackupButton"><span>💾</span><div><b>Back up library to Google Drive</b><small>Create a dated TrailGuide backup in Drive</small></div></button>
+  <button class="more-link" id="driveRootButton"><span>↗</span><div><b>Open TrailGuide in Google Drive</b><small>Browse files outside this app</small></div></button>
+  <div class="more-sep">About</div>
+  <div class="status-card"><b id="aboutVersion">TrailGuide</b><span>Country → Region → Destination → Hikes · PWA first version.</span></div>
+  <a class="more-link linklike" href="privacy.html"><span>🔒</span><div><b>Privacy & data</b><small>How cloud and Drive are used</small></div></a>
+ </div>
+</section>
+</main>
+<nav class="bottom-nav">
+ <button class="active" data-nav="home"><span>⌂</span><b>Home</b></button>
+ <button data-nav="destinations"><span>🥾</span><b>Hiking</b></button>
+ <button data-nav="trips"><span>🧭</span><b>Trips</b></button>
+ <button data-nav="map"><span>🗺️</span><b>Map</b></button>
+ <button data-nav="more"><span>•••</span><b>More</b></button>
+</nav>
+</div>
+
+<input type="file" id="importInput" accept=".hikingguide,.travelplan,.gpx,.zip,.json,application/json,application/gpx+xml,application/zip" multiple hidden>
+<input type="file" id="gpxInput" accept=".gpx,application/gpx+xml,text/xml,application/xml" hidden>
+<input type="file" id="documentInput" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.html,.eml,.doc,.docx,.xls,.xlsx" multiple hidden>
+<div class="modal" id="dialog" aria-hidden="true"><div class="dialog-card"><div class="dialog-head"><h2 id="dialogTitle">Dialog</h2><button id="dialogClose">×</button></div><div id="dialogBody"></div></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="drive.js"></script>
+<script type="module" src="cloud-auth.js"></script>
+</body></html>
